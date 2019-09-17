@@ -8,7 +8,8 @@ using SportsStore.Models.ViewModels;
 
 namespace SportsStore.Controllers
 {
-    public class ProductController : Controller {
+    public class ProductController : Controller
+    {
 
         private IProductRepository repository;
         public int PageSize = 4;
@@ -18,30 +19,21 @@ namespace SportsStore.Controllers
             repository = repo;
         }
 
-        public ViewResult List(int productPage = 1)
-        {
-            IQueryable<Product> model = repository.Products
-                                          .OrderBy(p => p.ProductID)
-                                          .Skip((productPage - 1) * PageSize)
-                                          .Take(PageSize);
-            return View(new ProductsListViewModel
+        public ViewResult List(string category, int productPage = 1)
+            => View(new ProductsListViewModel
             {
-                Products = model,
+                Products = repository.Products
+                    .Where(p => category == null || p.Category == category)
+                    .OrderBy(p => p.ProductID)
+                    .Skip((productPage - 1) * PageSize)
+                    .Take(PageSize),
                 PagingInfo = new PagingInfo
                 {
                     CurrentPage = productPage,
                     ItemsPerPage = PageSize,
                     TotalItems = repository.Products.Count()
-                }
+                },
+                CurrentCategory = category
             });
-        }
-
-        
-
-
-
-
     }
-
-    
 }
